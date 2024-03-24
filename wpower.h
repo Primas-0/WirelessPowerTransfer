@@ -93,6 +93,9 @@ private:
     // ***************************************************
     // Any private helper functions must be delared here!
     // ***************************************************
-
+    void destroyTree(Customer* customer);
+    void insertRecursive(const Customer& customer, Customer*& curr);
+    int findHeight(Customer* curr);
+    int max(int num1, int num2);
 };
 #endif
