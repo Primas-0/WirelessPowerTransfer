@@ -69,13 +69,13 @@ void WirelessPower::insertSPLAY(const Customer &customer, Customer *&curr) {
     //TODO
 }
 
-int WirelessPower::findHeight(Customer* customer) {
-    if (customer == nullptr) {
+int WirelessPower::findHeight(Customer* curr) {
+    if (curr == nullptr) {
         //empty tree has a height of -1 by convention
         return -1;
     } else {
         //standard formula to compute height of a node
-        return maxVal(findHeight(customer->m_left), findHeight(customer->m_right)) + 1;
+        return maxVal(findHeight(curr->m_left), findHeight(curr->m_right)) + 1;
     }
 }
 
@@ -90,20 +90,59 @@ int WirelessPower::maxVal(int num1, int num2) {
 void WirelessPower::remove(int id){
     if (m_type == BST) {
         //remove and update heights
-        removeBST();
+        removeBST(id, m_root);
     } else if (m_type == AVL) {
         //remove, update heights, and balance
-        removeAVL();
+        removeAVL(id, m_root);
     }
     //if the tree type is SPLAY, the remove function does not remove the node
 }
 
-void WirelessPower::removeBST() {
+void WirelessPower::removeBST(int id, Customer*& curr) {
+    if (id < curr->m_id) {
+        removeBST(id, curr->m_left);
+    } else if (id > curr->m_id) {
+        removeBST(id, curr->m_right);
+    } else {
+        //target node found
+        if (curr->m_left == nullptr && curr->m_right == nullptr) {
+            //case 1: no children (leaf node)
+            delete curr;
+            curr = nullptr;
+        } else if (curr->m_left == nullptr) {
+            //case 2: one right child
+            Customer* temp = curr;
+            curr = curr->m_right;
+            delete temp;
+        } else if (curr->m_right == nullptr) {
+            //case 3: one left child
+            Customer* temp = curr;
+            curr = curr->m_left;
+            delete temp;
+        } else {
+            //case 4: two children
+            Customer* temp = findMinNode(curr->m_right);
+
+            //transfer all data from minimum node of right subtree to target node
+            curr->m_id = temp->m_id;
+            curr->m_latitude = temp->m_latitude;
+            curr->m_longitude = temp->m_longitude;
+
+            //delete the minimum node of right subtree
+            removeBST(temp->m_id, curr->m_right);
+        }
+    }
+}
+
+void WirelessPower::removeAVL(int id, Customer*& curr) {
     //TODO
 }
 
-void WirelessPower::removeAVL() {
-    //TODO
+Customer* WirelessPower::findMinNode(Customer* curr) {
+    if (curr->m_left == nullptr) {
+        return curr;
+    }
+    return findMinNode(curr->m_left);
 }
 
 TREETYPE WirelessPower::getType() const{

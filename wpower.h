@@ -97,9 +97,10 @@ private:
     void insertBST(const Customer& customer, Customer*& curr);
     void insertAVL(const Customer& customer, Customer*& curr);
     void insertSPLAY(const Customer& customer, Customer*& curr);
-    int findHeight(Customer* customer);
+    int findHeight(Customer* curr);
     int maxVal(int num1, int num2);
-    void removeBST();
-    void removeAVL();
+    void removeBST(int id, Customer*& curr);
+    void removeAVL(int id, Customer*& curr);
+    Customer* findMinNode(Customer* curr);
 };
 #endif
