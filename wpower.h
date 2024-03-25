@@ -94,13 +94,19 @@ private:
     // Any private helper functions must be delared here!
     // ***************************************************
     void destroyTree(Customer* customer);
+
     void insertBST(const Customer& customer, Customer*& curr);
     void insertAVL(const Customer& customer, Customer*& curr);
     void insertSPLAY(const Customer& customer, Customer*& curr);
-    int findHeight(Customer* curr);
+    int findHeight(Customer* node);
     int maxVal(int num1, int num2);
+    int findBalanceFactor(Customer* node);
+    void balanceTree(Customer*& curr);
+    void rotateLeft(Customer*& curr);
+    void rotateRight(Customer*& curr);
+
     void removeBST(int id, Customer*& curr);
     void removeAVL(int id, Customer*& curr);
-    Customer* findMinNode(Customer* curr);
+    Customer* findMinNode(Customer* node);
 };
 #endif

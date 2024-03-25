@@ -29,12 +29,8 @@ void WirelessPower::insert(const Customer& customer){
     if (m_type == BST) {
         insertBST(customer, m_root); //pass tree by reference
     } else if (m_type == AVL) {
-        //If the tree type is AVL, after an insertion, we should update the height of each node in the insertion path as
-        // well as check for an imbalance at each node in this path.
         insertAVL(customer, m_root); //pass tree by reference
     } else {
-        //If the tree type is SPLAY, after an insertion, we need to splay the inserted node and bring it to the root of
-        // the tree while the tree preserves the BST property as well as updating the node heights.
         insertSPLAY(customer, m_root); //pass tree by reference
     }
 }
@@ -62,20 +58,53 @@ void WirelessPower::insertBST(const Customer& customer, Customer*& curr){
 }
 
 void WirelessPower::insertAVL(const Customer& customer, Customer*& curr) {
-    //TODO
+    if (curr == nullptr) {
+        //if past a leaf, allocate memory for new node and insert
+        Customer* newCustomer = new Customer(customer);
+        curr = newCustomer;
+        curr->m_left = curr->m_right = nullptr;
+    } else {
+        if (customer.m_id < curr->m_id) {
+            //traverse left subtree, updating heights along the way
+            insertAVL(customer, curr->m_left);
+            curr->m_height = findHeight(curr);
+
+            //check for an imbalance at each node in the path
+            int balanceFactor = findBalanceFactor(curr);
+            if (balanceFactor < -1 || balanceFactor > 1) {
+                balanceTree(curr);
+            }
+        } else if (customer.m_id > curr->m_id) {
+            //traverse right subtree, updating heights along the way
+            insertAVL(customer, curr->m_right);
+            curr->m_height = findHeight(curr);
+
+            //check for an imbalance at each node in the path
+            int balanceFactor = findBalanceFactor(curr);
+            if (balanceFactor < -1 || balanceFactor > 1) {
+                balanceTree(curr);
+            }
+        } else {
+            //duplicate id is not allowed, return without inserting
+            return;
+        }
+    }
 }
 
 void WirelessPower::insertSPLAY(const Customer &customer, Customer *&curr) {
+    //If the tree type is SPLAY, after an insertion, we need to splay the inserted node and bring it to the root of
+    // the tree while the tree preserves the BST property as well as updating the node heights.
+
     //TODO
 }
 
-int WirelessPower::findHeight(Customer* curr) {
-    if (curr == nullptr) {
+int WirelessPower::findHeight(Customer* node) {
+    if (node == nullptr) {
         //empty tree has a height of -1 by convention
         return -1;
     } else {
         //standard formula to compute height of a node
-        return maxVal(findHeight(curr->m_left), findHeight(curr->m_right)) + 1;
+        return maxVal(findHeight(node->m_left), findHeight(node->m_right)) + 1;
     }
 }
 
@@ -87,22 +116,87 @@ int WirelessPower::maxVal(int num1, int num2) {
     return num2;
 }
 
+int WirelessPower::findBalanceFactor(Customer* node) {
+    if (node == nullptr) {
+        return 0;
+    }
+    return findHeight(node->m_left) - findHeight(node->m_right);
+}
+
+void WirelessPower::balanceTree(Customer*& curr) {
+    int balanceFactor = findBalanceFactor(curr);
+
+    //if balance factor is greater than 1, tree is left-heavy
+    if (balanceFactor > 1) {
+        if (findBalanceFactor(curr->m_left) >= 0) {
+            //if left child's balance factor is also positive or 0, a single right rotation is enough
+            rotateRight(curr);
+        } else {
+            //otherwise, do double rotation (left-right)
+            rotateLeft(curr->m_left);
+            rotateRight(curr);
+        }
+    } else if (balanceFactor < -1) {
+        //if balance factor is less than -1, tree is right-heavy
+        if (findBalanceFactor(curr->m_right) <= 0) {
+            //if right child's balance factor is also negative or 0, a single left rotation is enough
+            rotateLeft(curr);
+        } else {
+            //otherwise, do double rotation (right-left)
+            rotateRight(curr->m_right);
+            rotateLeft(curr);
+        }
+    }
+}
+
+void WirelessPower::rotateLeft(Customer*& curr) {
+    Customer* rightChild = curr->m_right;
+    Customer* leftOfRightChild = rightChild->m_left;
+
+    //rotate
+    rightChild->m_left = curr;
+    curr->m_right = leftOfRightChild;
+
+    //update heights
+    curr->m_height = findHeight(curr);
+    rightChild->m_height = findHeight(rightChild);
+
+    //update tree structure
+    curr = rightChild;
+}
+
+void WirelessPower::rotateRight(Customer*& curr) {
+    Customer* leftChild = curr->m_left;
+    Customer* rightOfLeftChild = leftChild->m_right;
+
+    //rotate
+    leftChild->m_right = curr;
+    curr->m_left = rightOfLeftChild;
+
+    //update heights
+    curr->m_height = findHeight(curr);
+    leftChild->m_height = findHeight(leftChild);
+
+    //update tree structure
+    curr = leftChild;
+}
+
 void WirelessPower::remove(int id){
     if (m_type == BST) {
-        //remove and update heights
         removeBST(id, m_root);
     } else if (m_type == AVL) {
-        //remove, update heights, and balance
         removeAVL(id, m_root);
     }
-    //if the tree type is SPLAY, the remove function does not remove the node
+    //if the tree type is SPLAY, the remove function does nothing
 }
 
 void WirelessPower::removeBST(int id, Customer*& curr) {
     if (id < curr->m_id) {
         removeBST(id, curr->m_left);
+        curr->m_height = findHeight(curr);
     } else if (id > curr->m_id) {
         removeBST(id, curr->m_right);
+        curr->m_height = findHeight(curr);
     } else {
         //target node found
         if (curr->m_left == nullptr && curr->m_right == nullptr) {
@@ -136,13 +230,14 @@ void WirelessPower::removeBST(int id, Customer*& curr) {
 
 void WirelessPower::removeAVL(int id, Customer*& curr) {
     //TODO
+    //remove, update heights, and balance
 }
 
-Customer* WirelessPower::findMinNode(Customer* curr) {
-    if (curr->m_left == nullptr) {
-        return curr;
+Customer* WirelessPower::findMinNode(Customer* node) {
+    if (node->m_left == nullptr) {
+        return node;
     }
-    return findMinNode(curr->m_left);
+    return findMinNode(node->m_left);
 }
 
 TREETYPE WirelessPower::getType() const{
