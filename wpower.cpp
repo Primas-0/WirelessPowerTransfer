@@ -219,7 +219,6 @@ void WirelessPower::removeBST(int id, Customer*& curr) {
 }
 
 void WirelessPower::removeAVL(int id, Customer*& curr) {
-    //TODO
     if (id < curr->m_id) {
         removeAVL(id, curr->m_left);
 
@@ -286,6 +285,7 @@ void WirelessPower::setType(TREETYPE type){
 }
 
 void WirelessPower::inOrderBalance(Customer*& curr) {
+    //TODO: find out why this doesn't work
     if (curr != nullptr) {
         inOrderBalance(curr->m_left);
         balanceTree(curr);
@@ -294,7 +294,32 @@ void WirelessPower::inOrderBalance(Customer*& curr) {
 }
 
 const WirelessPower & WirelessPower::operator=(const WirelessPower & rhs){
-    //TODO
+    //if self-assignment, return current object without any changes
+    if (this == &rhs) {
+        return *this;
+    }
+
+    //otherwise, destroy current object
+    clear();
+
+    //make current object a deep copy of rhs
+    copyTree(rhs.m_root, m_root);
+    m_type = rhs.m_type;
+
+    return *this;
+}
+
+void WirelessPower::copyTree(Customer* sourceNode, Customer*& destinationNode) {
+    if (sourceNode == nullptr) {
+        destinationNode = nullptr;
+    } else {
+        //allocate memory and copy over the data from each node
+        destinationNode = new Customer(*sourceNode);
+
+        //traverse the tree (essentially preorder algorithm)
+        copyTree(sourceNode->m_left, destinationNode->m_left);
+        copyTree(sourceNode->m_right, destinationNode->m_right);
+    }
 }
 
 void WirelessPower::dumpTree() const {dump(m_root);}

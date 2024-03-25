@@ -110,5 +110,7 @@ private:
     Customer* findMinNode(Customer* node);
 
     void inOrderBalance(Customer*& curr);
+
+    void copyTree(Customer* sourceNode, Customer*& destinationNode);
 };
 #endif
