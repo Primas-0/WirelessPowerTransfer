@@ -288,8 +288,8 @@ void WirelessPower::setType(TREETYPE type){
 void WirelessPower::inOrderBalance(Customer*& curr) {
     if (curr != nullptr) {
         inOrderBalance(curr->m_left);
-        inOrderBalance(curr->m_right);
         balanceTree(curr);
+        inOrderBalance(curr->m_right);
     }
 }
 
