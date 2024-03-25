@@ -108,5 +108,7 @@ private:
     void removeBST(int id, Customer*& curr);
     void removeAVL(int id, Customer*& curr);
     Customer* findMinNode(Customer* node);
+
+    void inOrderBalance(Customer*& curr);
 };
 #endif

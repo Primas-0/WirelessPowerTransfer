@@ -50,9 +50,6 @@ void WirelessPower::insertBST(const Customer& customer, Customer*& curr){
             //traverse right subtree, updating heights along the way
             insertBST(customer, curr->m_right);
             curr->m_height = findHeight(curr);
-        } else {
-            //duplicate id is not allowed, return without inserting
-            return;
         }
     }
 }
@@ -65,28 +62,15 @@ void WirelessPower::insertAVL(const Customer& customer, Customer*& curr) {
         curr->m_left = curr->m_right = nullptr;
     } else {
         if (customer.m_id < curr->m_id) {
-            //traverse left subtree, updating heights along the way
+            //traverse left subtree, updating heights and balancing along the way
             insertAVL(customer, curr->m_left);
             curr->m_height = findHeight(curr);
-
-            //check for an imbalance at each node in the path
-            int balanceFactor = findBalanceFactor(curr);
-            if (balanceFactor < -1 || balanceFactor > 1) {
-                balanceTree(curr);
-            }
+            balanceTree(curr);
         } else if (customer.m_id > curr->m_id) {
-            //traverse right subtree, updating heights along the way
+            //traverse right subtree, updating heights and balancing along the way
             insertAVL(customer, curr->m_right);
             curr->m_height = findHeight(curr);
-
-            //check for an imbalance at each node in the path
-            int balanceFactor = findBalanceFactor(curr);
-            if (balanceFactor < -1 || balanceFactor > 1) {
-                balanceTree(curr);
-            }
-        } else {
-            //duplicate id is not allowed, return without inserting
-            return;
+            balanceTree(curr);
         }
     }
 }
@@ -193,10 +177,16 @@ void WirelessPower::remove(int id){
 void WirelessPower::removeBST(int id, Customer*& curr) {
     if (id < curr->m_id) {
         removeBST(id, curr->m_left);
+
+        //update heights
         curr->m_height = findHeight(curr);
+
     } else if (id > curr->m_id) {
         removeBST(id, curr->m_right);
+
+        //update heights
         curr->m_height = findHeight(curr);
+
     } else {
         //target node found
         if (curr->m_left == nullptr && curr->m_right == nullptr) {
@@ -230,10 +220,53 @@ void WirelessPower::removeBST(int id, Customer*& curr) {
 
 void WirelessPower::removeAVL(int id, Customer*& curr) {
     //TODO
-    //remove, update heights, and balance
+    if (id < curr->m_id) {
+        removeAVL(id, curr->m_left);
+
+        //update heights and balance if necessary
+        curr->m_height = findHeight(curr);
+        balanceTree(curr);
+
+    } else if (id > curr->m_id) {
+        removeAVL(id, curr->m_right);
+
+        //update heights and balance if necessary
+        curr->m_height = findHeight(curr);
+        balanceTree(curr);
+
+    } else {
+        //target node found
+        if (curr->m_left == nullptr && curr->m_right == nullptr) {
+            //case 1: no children (leaf node)
+            delete curr;
+            curr = nullptr;
+        } else if (curr->m_left == nullptr) {
+            //case 2: one right child
+            Customer* temp = curr;
+            curr = curr->m_right;
+            delete temp;
+        } else if (curr->m_right == nullptr) {
+            //case 3: one left child
+            Customer* temp = curr;
+            curr = curr->m_left;
+            delete temp;
+        } else {
+            //case 4: two children
+            Customer* temp = findMinNode(curr->m_right);
+
+            //transfer all data from minimum node of right subtree to target node
+            curr->m_id = temp->m_id;
+            curr->m_latitude = temp->m_latitude;
+            curr->m_longitude = temp->m_longitude;
+
+            //delete the minimum node of right subtree
+            removeAVL(temp->m_id, curr->m_right);
+        }
+    }
 }
 
 Customer* WirelessPower::findMinNode(Customer* node) {
+    //returns the minimum node in a tree or subtree
     if (node->m_left == nullptr) {
         return node;
     }
@@ -247,7 +280,17 @@ TREETYPE WirelessPower::getType() const{
 void WirelessPower::setType(TREETYPE type){
     m_type = type;
 
-    //TODO
+    if (type == AVL) {
+        inOrderBalance(m_root);
+    }
+}
+
+void WirelessPower::inOrderBalance(Customer*& curr) {
+    if (curr != nullptr) {
+        inOrderBalance(curr->m_left);
+        inOrderBalance(curr->m_right);
+        balanceTree(curr);
+    }
 }
 
 const WirelessPower & WirelessPower::operator=(const WirelessPower & rhs){
