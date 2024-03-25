@@ -104,6 +104,7 @@ private:
     void balanceTree(Customer*& curr);
     void rotateLeft(Customer*& curr);
     void rotateRight(Customer*& curr);
+    Customer* splay(Customer*& root, int key);
 
     void removeBST(int id, Customer*& curr);
     void removeAVL(int id, Customer*& curr);

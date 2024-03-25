@@ -75,11 +75,29 @@ void WirelessPower::insertAVL(const Customer& customer, Customer*& curr) {
     }
 }
 
-void WirelessPower::insertSPLAY(const Customer &customer, Customer *&curr) {
+void WirelessPower::insertSPLAY(const Customer& customer, Customer*& curr) {
     //If the tree type is SPLAY, after an insertion, we need to splay the inserted node and bring it to the root of
     // the tree while the tree preserves the BST property as well as updating the node heights.
 
     //TODO
+
+    if (curr == nullptr) {
+        //if past a leaf, allocate memory for new node and insert
+        Customer* newCustomer = new Customer(customer);
+        curr = newCustomer;
+        curr->m_left = curr->m_right = nullptr;
+
+        //splay the inserted node
+        m_root = splay(m_root, curr->m_id);
+    } else {
+        if (customer.m_id < curr->m_id) {
+            //traverse left subtree, updating heights along the way
+            insertSPLAY(customer, curr->m_left);
+        } else if (customer.m_id > curr->m_id) {
+            //traverse right subtree, updating heights along the way
+            insertSPLAY(customer, curr->m_right);
+        }
+    }
 }
 
 int WirelessPower::findHeight(Customer* node) {
@@ -163,6 +181,78 @@ void WirelessPower::rotateRight(Customer*& curr) {
 
     //update tree structure
     curr = leftChild;
+}
+
+Customer* WirelessPower::splay(Customer*& root, int key) {
+    //
+    if (root == nullptr || root->m_id == key) {
+        return root;
+    }
+
+    if (root->m_id < key) {
+        //move to right subtree
+        //
+        if (root->m_right == nullptr) {
+            return root;
+        }
+
+        if (root->m_right->m_id > key) {
+            //zig-zag operation
+            root->m_right->m_left = splay(root->m_right->m_left, key);
+
+            //first rotation (zig)
+            if (root->m_right->m_left != nullptr) {
+                rotateRight(root->m_right);
+            }
+        } else if (root->m_right->m_id < key) {
+            //zag-zag operation
+            root->m_right->m_right = splay(root->m_right->m_right, key);
+
+            //first rotation (zag)
+            rotateLeft(root);
+        }
+
+        if (root->m_right == nullptr) {
+            //only one rotation required
+            return root;
+        } else {
+            //second rotation (zag)
+            rotateLeft(root);
+            return root;
+        }
+
+    } else if (root->m_id > key) {
+        //move to left subtree
+        //
+        if (root->m_left == nullptr) {
+            return root;
+        }
+
+        if (root->m_left->m_id > key) {
+            //zig-zig operation
+            root->m_left->m_left = splay(root->m_left->m_left, key);
+
+            //first rotation (zig)
+            rotateRight(root);
+        } else if (root->m_left->m_id < key) {
+            //zag-zig operation
+            root->m_left->m_right = splay(root->m_left->m_right, key);
+
+            //first rotation (zag)
+            if (root->m_left->m_right != nullptr) {
+                rotateLeft(root->m_left);
+            }
+        }
+
+        if (root->m_left == nullptr) {
+            //only one rotation required
+            return root;
+        } else {
+            //second rotation (zig)
+            rotateRight(root);
+            return root;
+        }
+    }
 }
 
 void WirelessPower::remove(int id){
