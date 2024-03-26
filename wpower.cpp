@@ -76,28 +76,35 @@ void WirelessPower::insertAVL(const Customer& customer, Customer*& curr) {
 }
 
 void WirelessPower::insertSPLAY(const Customer& customer, Customer*& curr) {
-    //If the tree type is SPLAY, after an insertion, we need to splay the inserted node and bring it to the root of
-    // the tree while the tree preserves the BST property as well as updating the node heights.
-
-    //TODO
-
     if (curr == nullptr) {
-        //if past a leaf, allocate memory for new node and insert
-        Customer* newCustomer = new Customer(customer);
+        //if tree is empty, insert new node at root
+        Customer *newCustomer = new Customer(customer);
         curr = newCustomer;
         curr->m_left = curr->m_right = nullptr;
-
-        //splay the inserted node
-        m_root = splay(m_root, curr->m_id);
-    } else {
-        if (customer.m_id < curr->m_id) {
-            //traverse left subtree, updating heights along the way
-            insertSPLAY(customer, curr->m_left);
-        } else if (customer.m_id > curr->m_id) {
-            //traverse right subtree, updating heights along the way
-            insertSPLAY(customer, curr->m_right);
-        }
+        return;
     }
+
+    //splay the node
+    m_root = splay(m_root, customer.m_id);
+
+    //return if BST property preserved
+    if (customer.m_id == curr->m_id) {
+        return;
+    }
+
+    Customer *newCustomer = new Customer(customer);
+
+    //otherwise, update tree structure to preserve BST property
+    if (customer.m_id < curr->m_id) {
+        newCustomer->m_right = curr;
+        newCustomer->m_left = curr->m_left;
+        curr->m_left = nullptr;
+    } else if (customer.m_id > curr->m_id) {
+        newCustomer->m_left = curr;
+        newCustomer->m_right = curr->m_right;
+        curr->m_right = nullptr;
+    }
+    curr = newCustomer;
 }
 
 int WirelessPower::findHeight(Customer* node) {
@@ -184,14 +191,14 @@ void WirelessPower::rotateRight(Customer*& curr) {
 }
 
 Customer* WirelessPower::splay(Customer*& root, int key) {
-    //
+    //return if tree is empty or target node is already at root
     if (root == nullptr || root->m_id == key) {
         return root;
     }
 
     if (root->m_id < key) {
         //move to right subtree
-        //
+        //return if right subtree is empty
         if (root->m_right == nullptr) {
             return root;
         }
@@ -223,7 +230,7 @@ Customer* WirelessPower::splay(Customer*& root, int key) {
 
     } else if (root->m_id > key) {
         //move to left subtree
-        //
+        //return if left subtree is empty
         if (root->m_left == nullptr) {
             return root;
         }
@@ -370,17 +377,21 @@ void WirelessPower::setType(TREETYPE type){
     m_type = type;
 
     if (type == AVL) {
-        inOrderBalance(m_root);
+        postOrderInsert(m_root);
     }
 }
 
-void WirelessPower::inOrderBalance(Customer*& curr) {
-    //TODO: find out why this doesn't work
+void WirelessPower::postOrderInsert(Customer*& curr) {
+    //TODO: find out why this doesn't work, postorder special insert
     if (curr != nullptr) {
-        inOrderBalance(curr->m_left);
-        balanceTree(curr);
-        inOrderBalance(curr->m_right);
+        postOrderInsert(curr->m_left);
+        postOrderInsert(curr->m_right);
+        specialInsertAVL(curr);
     }
+}
+
+void WirelessPower::specialInsertAVL(Customer *&curr) {
+    //TODO
 }
 
 const WirelessPower & WirelessPower::operator=(const WirelessPower & rhs){
