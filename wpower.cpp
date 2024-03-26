@@ -87,6 +87,11 @@ void WirelessPower::insertSPLAY(const Customer& customer, Customer*& curr) {
     //splay the node
     m_root = splay(m_root, customer.m_id);
 
+    //duplicate id not allowed, return without inserting
+    if (customer.m_id == curr->m_id) {
+        return;
+    }
+
     Customer *newCustomer = new Customer(customer);
 
     //update tree structure to preserve BST property
