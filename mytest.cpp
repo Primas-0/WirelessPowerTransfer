@@ -50,7 +50,6 @@ public:
     bool testBSTRemoveNormal();
     bool testBSTRemoveEdge();
 
-    //Test whether the AVL tree is balanced after multiple removals. For example, insert 300 nodes, then remove 150, and check the AVL property.
     bool testAVLBalancedAfterRemove();
 
     //Test whether the BST property is preserved after multiple removals from a BST tree and an AVL tree.
@@ -66,7 +65,7 @@ public:
     bool testAssignmentError();
 
 private:
-    void insertRandMultiple(WirelessPower& powerSystem);
+    vector<int> insertRandMultiple(WirelessPower& powerSystem);
     bool postOrderBalanceCheck(Customer* node);
     int findBalanceFactor(Customer* node);
     int findHeight(Customer* node);
@@ -85,12 +84,14 @@ bool Tester::testAVLBalancedAfterInsert() {
     return postOrderBalanceCheck(powerSystem.m_root);
 }
 
-void Tester::insertRandMultiple(WirelessPower& powerSystem) {
+vector<int> Tester::insertRandMultiple(WirelessPower& powerSystem) {
     Random randIDObject(MINID, MAXID, UNIFORMINT);
     Random randLatObject(MINLAT, MAXLAT, UNIFORMREAL);
     Random randLongObject(MINLONG, MAXLONG, UNIFORMREAL);
 
     int customerSize = 300;
+
+    vector<int> keyVector;
 
     for (int i = 0; i < customerSize; i++){
         int randID = randIDObject.getRandInt();
@@ -99,7 +100,10 @@ void Tester::insertRandMultiple(WirelessPower& powerSystem) {
 
         Customer customer(randID, randLat, randLong);
         powerSystem.insert(customer);
+
+        keyVector.push_back(randID);
     }
+    return keyVector;
 }
 
 bool Tester::postOrderBalanceCheck(Customer *node) {
@@ -291,6 +295,23 @@ bool Tester::testBSTRemoveEdge() {
     return true;
 }
 
+bool Tester::testAVLBalancedAfterRemove() {
+    vector<int> keyVector;
+
+    //insert a large number of nodes, store all IDs
+    WirelessPower powerSystem(AVL);
+    keyVector = insertRandMultiple(powerSystem);
+
+    int removeSize = 150;
+
+    //remove a select number of nodes
+    for (int i = 0; i < removeSize; i++) {
+        powerSystem.remove(keyVector.at(i));
+    }
+
+    return postOrderBalanceCheck(powerSystem.m_root);
+}
+
 int main() {
     Tester tester;
 
@@ -342,6 +363,13 @@ int main() {
     }
     cout << "Testing removeBST (edge) - removes only node from single-node tree successfully:" << endl;
     if (tester.testBSTRemoveEdge()) {
+        cout << "\tTest passed!" << endl;
+    } else {
+        cout << "\t***Test failed!***" << endl;
+    }
+
+    cout << "\nTesting removeAVL - check whether tree is balanced after multiple removals:" << endl;
+    if (tester.testAVLBalancedAfterRemove()) {
         cout << "\tTest passed!" << endl;
     } else {
         cout << "\t***Test failed!***" << endl;
