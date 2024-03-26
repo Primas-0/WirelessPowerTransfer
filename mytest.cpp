@@ -52,8 +52,9 @@ public:
 
     bool testAVLBalancedAfterRemove();
 
-    //Test whether the BST property is preserved after multiple removals from a BST tree and an AVL tree.
-    bool testBSTPropertyAfterRemove();
+    bool testBSTPropertyAfterRemoveBST();
+    bool testBSTPropertyAfterRemoveAVL();
+    bool testBSTPropertyAfterRemoveSPLAY();
 
     //Test whether the height values are correct in a BST tree after multiple removals.
     bool testBSTHeightAfterRemove();
@@ -309,7 +310,62 @@ bool Tester::testAVLBalancedAfterRemove() {
         powerSystem.remove(keyVector.at(i));
     }
 
+    //check whether tree is balanced
     return postOrderBalanceCheck(powerSystem.m_root);
+}
+
+bool Tester::testBSTPropertyAfterRemoveBST() {
+    vector<int> keyVector;
+
+    //insert a large number of nodes, store all IDs
+    WirelessPower powerSystem(BST);
+    keyVector = insertRandMultiple(powerSystem);
+
+    int removeSize = 150;
+
+    //remove a select number of nodes
+    for (int i = 0; i < removeSize; i++) {
+        powerSystem.remove(keyVector.at(i));
+    }
+
+    //check whether tree preserves BST property
+    return postOrderBSTCheck(powerSystem.m_root);
+}
+
+bool Tester::testBSTPropertyAfterRemoveAVL() {
+    vector<int> keyVector;
+
+    //insert a large number of nodes, store all IDs
+    WirelessPower powerSystem(AVL);
+    keyVector = insertRandMultiple(powerSystem);
+
+    int removeSize = 150;
+
+    //remove a select number of nodes
+    for (int i = 0; i < removeSize; i++) {
+        powerSystem.remove(keyVector.at(i));
+    }
+
+    //check whether tree preserves BST property
+    return postOrderBSTCheck(powerSystem.m_root);
+}
+
+bool Tester::testBSTPropertyAfterRemoveSPLAY() {
+    vector<int> keyVector;
+
+    //insert a large number of nodes, store all IDs
+    WirelessPower powerSystem(SPLAY);
+    keyVector = insertRandMultiple(powerSystem);
+
+    int removeSize = 150;
+
+    //remove a select number of nodes
+    for (int i = 0; i < removeSize; i++) {
+        powerSystem.remove(keyVector.at(i));
+    }
+
+    //check whether tree preserves BST property
+    return postOrderBSTCheck(powerSystem.m_root);
 }
 
 int main() {
@@ -322,19 +378,19 @@ int main() {
         cout << "\t***Test failed!***" << endl;
     }
 
-    cout << "\nTesting insertBST - check whether BST property is preserved:" << endl;
+    cout << "\nTesting insertBST - check whether BST property is preserved after multiple insertions:" << endl;
     if (tester.testBSTPropertyAfterInsertBST()) {
         cout << "\tTest passed!" << endl;
     } else {
         cout << "\t***Test failed!***" << endl;
     }
-    cout << "Testing insertAVL - check whether BST property is preserved:" << endl;
+    cout << "Testing insertAVL - check whether BST property is preserved after multiple insertions:" << endl;
     if (tester.testBSTPropertyAfterInsertAVL()) {
         cout << "\tTest passed!" << endl;
     } else {
         cout << "\t***Test failed!***" << endl;
     }
-    cout << "Testing insertSPLAY - check whether BST property is preserved:" << endl;
+    cout << "Testing insertSPLAY - check whether BST property is preserved after multiple insertions:" << endl;
     if (tester.testBSTPropertyAfterInsertSPLAY()) {
         cout << "\tTest passed!" << endl;
     } else {
@@ -370,6 +426,25 @@ int main() {
 
     cout << "\nTesting removeAVL - check whether tree is balanced after multiple removals:" << endl;
     if (tester.testAVLBalancedAfterRemove()) {
+        cout << "\tTest passed!" << endl;
+    } else {
+        cout << "\t***Test failed!***" << endl;
+    }
+
+    cout << "\nTesting removeBST - check whether BST property is preserved after multiple removals:" << endl;
+    if (tester.testBSTPropertyAfterRemoveBST()) {
+        cout << "\tTest passed!" << endl;
+    } else {
+        cout << "\t***Test failed!***" << endl;
+    }
+    cout << "Testing removeAVL - check whether BST property is preserved after multiple removals:" << endl;
+    if (tester.testBSTPropertyAfterRemoveAVL()) {
+        cout << "\tTest passed!" << endl;
+    } else {
+        cout << "\t***Test failed!***" << endl;
+    }
+    cout << "Testing removeSPLAY - check whether BST property is preserved after multiple removals:" << endl;
+    if (tester.testBSTPropertyAfterRemoveSPLAY()) {
         cout << "\tTest passed!" << endl;
     } else {
         cout << "\t***Test failed!***" << endl;
