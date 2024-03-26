@@ -110,7 +110,8 @@ private:
     void removeAVL(int id, Customer*& curr);
     Customer* findMinNode(Customer* node);
 
-    void inOrderBalance(Customer*& curr);
+    void restructureToAVL(Customer* oldNode, Customer*& newNode);
+    void pointerInsertAVL(Customer* oldNode, Customer*& newNode);
 
     void copyTree(Customer* sourceNode, Customer*& destinationNode);
 };

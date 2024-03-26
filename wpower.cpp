@@ -87,14 +87,9 @@ void WirelessPower::insertSPLAY(const Customer& customer, Customer*& curr) {
     //splay the node
     m_root = splay(m_root, customer.m_id);
 
-    //return if BST property preserved
-    if (customer.m_id == curr->m_id) {
-        return;
-    }
-
     Customer *newCustomer = new Customer(customer);
 
-    //otherwise, update tree structure to preserve BST property
+    //update tree structure to preserve BST property
     if (customer.m_id < curr->m_id) {
         newCustomer->m_right = curr;
         newCustomer->m_left = curr->m_left;
@@ -104,6 +99,8 @@ void WirelessPower::insertSPLAY(const Customer& customer, Customer*& curr) {
         newCustomer->m_right = curr->m_right;
         curr->m_right = nullptr;
     }
+    curr->m_height = findHeight(curr);
+    newCustomer->m_height = findHeight(newCustomer);
     curr = newCustomer;
 }
 
@@ -377,21 +374,43 @@ void WirelessPower::setType(TREETYPE type){
     m_type = type;
 
     if (type == AVL) {
-        postOrderInsert(m_root);
+        Customer* newRoot = nullptr;
+        restructureToAVL(m_root, newRoot);
+        m_root = newRoot;
     }
 }
 
-void WirelessPower::postOrderInsert(Customer*& curr) {
-    //TODO: find out why this doesn't work, postorder special insert
-    if (curr != nullptr) {
-        postOrderInsert(curr->m_left);
-        postOrderInsert(curr->m_right);
-        specialInsertAVL(curr);
+void WirelessPower::restructureToAVL(Customer* oldNode, Customer*& newNode) {
+    if (oldNode != nullptr) {
+        //postorder traversal
+        restructureToAVL(oldNode->m_left, newNode);
+        restructureToAVL(oldNode->m_right, newNode);
+
+        //remove inserted nodes from old tree
+        oldNode->m_left = nullptr;
+        oldNode->m_right = nullptr;
+
+        //insert each node into new "tree"
+        pointerInsertAVL(oldNode, newNode);
     }
 }
 
-void WirelessPower::specialInsertAVL(Customer *&curr) {
-    //TODO
+void WirelessPower::pointerInsertAVL(Customer* oldNode, Customer*& newNode) {
+    if (newNode == nullptr) {
+        newNode = oldNode;
+    } else {
+        if (oldNode->m_id < newNode->m_id) {
+            //traverse left subtree, updating heights and balancing along the way
+            pointerInsertAVL(oldNode, newNode->m_left);
+            newNode->m_height = findHeight(newNode);
+            balanceTree(newNode);
+        } else if (oldNode->m_id > newNode->m_id) {
+            //traverse right subtree, updating heights and balancing along the way
+            pointerInsertAVL(oldNode, newNode->m_right);
+            newNode->m_height = findHeight(newNode);
+            balanceTree(newNode);
+        }
+    }
 }
 
 const WirelessPower & WirelessPower::operator=(const WirelessPower & rhs){
