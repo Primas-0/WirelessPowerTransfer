@@ -47,8 +47,7 @@ public:
     bool testBSTPropertyAfterInsertAVL();
     bool testBSTPropertyAfterInsertSPLAY();
 
-    //Test whether the Splay tree performs the splay operations. For example, we can insert multiple nodes in the splay tree and after every insertion we check whether the inserted node is at root and the tree preserves the BST property.
-    bool testSPLAY();
+    bool testSplaying();
 
     //Test whether the height values are correct after multiple insetions in a Splay tree.
     bool testSPLAYHeight();
@@ -198,6 +197,32 @@ bool Tester::postOrderBSTCheck(Customer *node) {
     }
 }
 
+bool Tester::testSplaying() {
+    WirelessPower powerSystem(SPLAY);
+
+    Random randIDObject(MINID, MAXID, UNIFORMINT);
+    Random randLatObject(MINLAT, MAXLAT, UNIFORMREAL);
+    Random randLongObject(MINLONG, MAXLONG, UNIFORMREAL);
+
+    int customerSize = 300;
+
+    for (int i = 0; i < customerSize; i++){
+        int randID = randIDObject.getRandInt();
+        double randLat = randLatObject.getRandReal();
+        double randLong = randLongObject.getRandReal();
+
+        Customer customer(randID, randLat, randLong);
+        powerSystem.insert(customer);
+
+        //after every insertion, check whether the inserted node is at root
+        if (powerSystem.m_root->m_id != customer.m_id) {
+            return false;
+        }
+    }
+    //test passes if all inserted nodes were splayed
+    return true;
+}
+
 int main() {
     Tester tester;
 
@@ -227,5 +252,10 @@ int main() {
         cout << "\t***Test failed!***" << endl;
     }
 
-
+    cout << "\nTesting insertSPLAY - check whether splaying happens correctly:" << endl;
+    if (tester.testSplaying()) {
+        cout << "\tTest passed!" << endl;
+    } else {
+        cout << "\t***Test failed!***" << endl;
+    }
 }
