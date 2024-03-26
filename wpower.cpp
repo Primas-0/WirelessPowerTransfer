@@ -262,6 +262,7 @@ Customer* WirelessPower::splay(Customer*& root, int key) {
             return root;
         }
     }
+    return root;
 }
 
 void WirelessPower::remove(int id){
