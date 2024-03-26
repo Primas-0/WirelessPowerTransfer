@@ -17,10 +17,6 @@ public:
         }
     }
 
-    void setSeed(int seed){
-        m_randGenerator = std::mt19937(seed);
-    }
-
     int getRandInt() {
         //generate a random integer between the min and max values
         return m_uniIntDist(m_randGenerator);
@@ -51,20 +47,17 @@ public:
 
     bool testSPLAYHeight();
 
-    //Test the remove function for a normal case in the BST tree. Trying to remove a node from a tree results in a tree without the node.
     bool testBSTRemoveNormal();
-
-    //Test the remove function for an edge case in the BST tree. In this case the tree has only one node and we remove the node.
     bool testBSTRemoveEdge();
 
     //Test whether the AVL tree is balanced after multiple removals. For example, insert 300 nodes, then remove 150, and check the AVL property.
-    bool testBalancedAfterRemoveMultiple();
+    bool testAVLBalancedAfterRemove();
 
     //Test whether the BST property is preserved after multiple removals from a BST tree and an AVL tree.
-    bool testBSTPropertyAfterRemoveMultiple();
+    bool testBSTPropertyAfterRemove();
 
     //Test whether the height values are correct in a BST tree after multiple removals.
-    bool testBSTHeight();
+    bool testBSTHeightAfterRemove();
 
     //Test the assignment operator for a normal case.
     bool testAssignmentNormal();
@@ -73,7 +66,7 @@ public:
     bool testAssignmentError();
 
 private:
-    void insertRand(WirelessPower& powerSystem);
+    void insertRandMultiple(WirelessPower& powerSystem);
     bool postOrderBalanceCheck(Customer* node);
     int findBalanceFactor(Customer* node);
     int findHeight(Customer* node);
@@ -81,17 +74,18 @@ private:
 
     bool postOrderBSTCheck(Customer* node);
     bool postOrderHeightCheck(Customer* node);
+    bool postOrderCheckKeyAbsent(Customer* node, int key);
 };
 
 bool Tester::testAVLBalancedAfterInsert() {
     //test whether the AVL tree is balanced after a large number of insertions
     WirelessPower powerSystem(AVL);
-    insertRand(powerSystem);
+    insertRandMultiple(powerSystem);
 
     return postOrderBalanceCheck(powerSystem.m_root);
 }
 
-void Tester::insertRand(WirelessPower& powerSystem) {
+void Tester::insertRandMultiple(WirelessPower& powerSystem) {
     Random randIDObject(MINID, MAXID, UNIFORMINT);
     Random randLatObject(MINLAT, MAXLAT, UNIFORMREAL);
     Random randLongObject(MINLONG, MAXLONG, UNIFORMREAL);
@@ -149,21 +143,21 @@ int Tester::maxVal(int num1, int num2) {
 
 bool Tester::testBSTPropertyAfterInsertBST() {
     WirelessPower powerSystem(BST);
-    insertRand(powerSystem);
+    insertRandMultiple(powerSystem);
 
     return postOrderBSTCheck(powerSystem.m_root);
 }
 
 bool Tester::testBSTPropertyAfterInsertAVL() {
     WirelessPower powerSystem(AVL);
-    insertRand(powerSystem);
+    insertRandMultiple(powerSystem);
 
     return postOrderBSTCheck(powerSystem.m_root);
 }
 
 bool Tester::testBSTPropertyAfterInsertSPLAY() {
     WirelessPower powerSystem(SPLAY);
-    insertRand(powerSystem);
+    insertRandMultiple(powerSystem);
 
     return postOrderBSTCheck(powerSystem.m_root);
 }
@@ -229,7 +223,7 @@ bool Tester::testSplaying() {
 bool Tester::testSPLAYHeight() {
     //test whether the height values are correct after a large number of insetions in a SPLAY tree
     WirelessPower powerSystem(SPLAY);
-    insertRand(powerSystem);
+    insertRandMultiple(powerSystem);
 
     return postOrderHeightCheck(powerSystem.m_root);
 }
@@ -243,6 +237,56 @@ bool Tester::postOrderHeightCheck(Customer *node) {
         if (node->m_height != findHeight(node)) {
             return false;
         }
+    }
+    return true;
+}
+
+bool Tester::testBSTRemoveNormal() {
+    //insert a large number of nodes
+    WirelessPower powerSystem(BST);
+    insertRandMultiple(powerSystem);
+
+    //remove root
+    int oldRootKey = powerSystem.m_root->m_id;
+    powerSystem.remove(oldRootKey);
+
+    return postOrderCheckKeyAbsent(powerSystem.m_root, oldRootKey);
+}
+
+bool Tester::postOrderCheckKeyAbsent(Customer *node, int key) {
+    if (node != nullptr) {
+        //visit all nodes and check if key is present
+        postOrderBalanceCheck(node->m_left);
+        postOrderBalanceCheck(node->m_right);
+
+        if (node->m_id == key) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool Tester::testBSTRemoveEdge() {
+    WirelessPower powerSystem(BST);
+
+    Random randIDObject(MINID, MAXID, UNIFORMINT);
+    Random randLatObject(MINLAT, MAXLAT, UNIFORMREAL);
+    Random randLongObject(MINLONG, MAXLONG, UNIFORMREAL);
+
+    int randID = randIDObject.getRandInt();
+    double randLat = randLatObject.getRandReal();
+    double randLong = randLongObject.getRandReal();
+
+    //insert one node
+    Customer customer(randID, randLat, randLong);
+    powerSystem.insert(customer);
+
+    //remove the inserted node
+    powerSystem.remove(randID);
+
+    if (powerSystem.m_root != nullptr) {
+        //test fails if tree is not empty
+        return false;
     }
     return true;
 }
@@ -285,6 +329,19 @@ int main() {
 
     cout << "\nTesting insertSPLAY - check all heights:" << endl;
     if (tester.testSPLAYHeight()) {
+        cout << "\tTest passed!" << endl;
+    } else {
+        cout << "\t***Test failed!***" << endl;
+    }
+
+    cout << "\nTesting removeBST (normal) - removes one node from normal tree successfully:" << endl;
+    if (tester.testBSTRemoveNormal()) {
+        cout << "\tTest passed!" << endl;
+    } else {
+        cout << "\t***Test failed!***" << endl;
+    }
+    cout << "Testing removeBST (edge) - removes only node from single-node tree successfully:" << endl;
+    if (tester.testBSTRemoveEdge()) {
         cout << "\tTest passed!" << endl;
     } else {
         cout << "\t***Test failed!***" << endl;
