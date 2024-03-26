@@ -49,7 +49,6 @@ public:
 
     bool testSplaying();
 
-    //Test whether the height values are correct after multiple insetions in a Splay tree.
     bool testSPLAYHeight();
 
     //Test the remove function for a normal case in the BST tree. Trying to remove a node from a tree results in a tree without the node.
@@ -81,10 +80,11 @@ private:
     int maxVal(int num1, int num2);
 
     bool postOrderBSTCheck(Customer* node);
+    bool postOrderHeightCheck(Customer* node);
 };
 
 bool Tester::testAVLBalancedAfterInsert() {
-    //Test whether the AVL tree is balanced after a large number of insertions
+    //test whether the AVL tree is balanced after a large number of insertions
     WirelessPower powerSystem(AVL);
     insertRand(powerSystem);
 
@@ -118,8 +118,8 @@ bool Tester::postOrderBalanceCheck(Customer *node) {
         if (balanceFactor < -1 || balanceFactor > 1) {
             return false;
         }
-        return true;
     }
+    return true;
 }
 
 int Tester::findBalanceFactor(Customer* node) {
@@ -193,8 +193,11 @@ bool Tester::postOrderBSTCheck(Customer *node) {
                 return true;
             }
         }
+        //test fails if any nodes violate BST property
         return false;
     }
+    //test passes if tree is empty
+    return true;
 }
 
 bool Tester::testSplaying() {
@@ -220,6 +223,27 @@ bool Tester::testSplaying() {
         }
     }
     //test passes if all inserted nodes were splayed
+    return true;
+}
+
+bool Tester::testSPLAYHeight() {
+    //test whether the height values are correct after a large number of insetions in a SPLAY tree
+    WirelessPower powerSystem(SPLAY);
+    insertRand(powerSystem);
+
+    return postOrderHeightCheck(powerSystem.m_root);
+}
+
+bool Tester::postOrderHeightCheck(Customer *node) {
+    if (node != nullptr) {
+        //visit all nodes and check if the balance factors are valid
+        postOrderHeightCheck(node->m_left);
+        postOrderHeightCheck(node->m_right);
+
+        if (node->m_height != findHeight(node)) {
+            return false;
+        }
+    }
     return true;
 }
 
@@ -254,6 +278,13 @@ int main() {
 
     cout << "\nTesting insertSPLAY - check whether splaying happens correctly:" << endl;
     if (tester.testSplaying()) {
+        cout << "\tTest passed!" << endl;
+    } else {
+        cout << "\t***Test failed!***" << endl;
+    }
+
+    cout << "\nTesting insertSPLAY - check all heights:" << endl;
+    if (tester.testSPLAYHeight()) {
         cout << "\tTest passed!" << endl;
     } else {
         cout << "\t***Test failed!***" << endl;
