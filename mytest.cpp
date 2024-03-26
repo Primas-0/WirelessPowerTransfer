@@ -45,7 +45,7 @@ public:
 
     bool testSplaying();
 
-    bool testSPLAYHeight();
+    bool testSPLAYHeightAfterInsert();
 
     bool testBSTRemoveNormal();
     bool testBSTRemoveEdge();
@@ -54,16 +54,16 @@ public:
 
     bool testBSTPropertyAfterRemoveBST();
     bool testBSTPropertyAfterRemoveAVL();
-    bool testBSTPropertyAfterRemoveSPLAY();
 
-    //Test whether the height values are correct in a BST tree after multiple removals.
     bool testBSTHeightAfterRemove();
 
-    //Test the assignment operator for a normal case.
-    bool testAssignmentNormal();
+    bool testBSTAssignmentNormal();
+    bool testAVLAssignmentNormal();
+    bool testSPLAYAssignmentNormal();
 
-    //test the assignment operator for an error case, e.g. assigning an empty object to an empty object.
-    bool testAssignmentError();
+    bool testBSTAssignmentError();
+    bool testAVLAssignmentError();
+    bool testSPLAYAssignmentError();
 
 private:
     vector<int> insertRandMultiple(WirelessPower& powerSystem);
@@ -75,6 +75,7 @@ private:
     bool postOrderBSTCheck(Customer* node);
     bool postOrderHeightCheck(Customer* node);
     bool postOrderCheckKeyAbsent(Customer* node, int key);
+    bool postOrderCheckEqual(Customer* source, Customer* destination);
 };
 
 bool Tester::testAVLBalancedAfterInsert() {
@@ -225,7 +226,7 @@ bool Tester::testSplaying() {
     return true;
 }
 
-bool Tester::testSPLAYHeight() {
+bool Tester::testSPLAYHeightAfterInsert() {
     //test whether the height values are correct after a large number of insetions in a SPLAY tree
     WirelessPower powerSystem(SPLAY);
     insertRandMultiple(powerSystem);
@@ -235,7 +236,7 @@ bool Tester::testSPLAYHeight() {
 
 bool Tester::postOrderHeightCheck(Customer *node) {
     if (node != nullptr) {
-        //visit all nodes and check if the balance factors are valid
+        //visit all nodes and check if the heights are valid
         postOrderHeightCheck(node->m_left);
         postOrderHeightCheck(node->m_right);
 
@@ -261,8 +262,8 @@ bool Tester::testBSTRemoveNormal() {
 bool Tester::postOrderCheckKeyAbsent(Customer *node, int key) {
     if (node != nullptr) {
         //visit all nodes and check if key is present
-        postOrderBalanceCheck(node->m_left);
-        postOrderBalanceCheck(node->m_right);
+        postOrderCheckKeyAbsent(node->m_left, key);
+        postOrderCheckKeyAbsent(node->m_right, key);
 
         if (node->m_id == key) {
             return false;
@@ -350,11 +351,11 @@ bool Tester::testBSTPropertyAfterRemoveAVL() {
     return postOrderBSTCheck(powerSystem.m_root);
 }
 
-bool Tester::testBSTPropertyAfterRemoveSPLAY() {
+bool Tester::testBSTHeightAfterRemove() {
     vector<int> keyVector;
 
     //insert a large number of nodes, store all IDs
-    WirelessPower powerSystem(SPLAY);
+    WirelessPower powerSystem(BST);
     keyVector = insertRandMultiple(powerSystem);
 
     int removeSize = 150;
@@ -364,8 +365,83 @@ bool Tester::testBSTPropertyAfterRemoveSPLAY() {
         powerSystem.remove(keyVector.at(i));
     }
 
-    //check whether tree preserves BST property
-    return postOrderBSTCheck(powerSystem.m_root);
+    //check all node heights
+    return postOrderHeightCheck(powerSystem.m_root);
+}
+
+bool Tester::testBSTAssignmentNormal() {
+    WirelessPower powerSystemSource(BST);
+    WirelessPower powerSystemDest(BST);
+    insertRandMultiple(powerSystemSource);
+    insertRandMultiple(powerSystemDest);
+
+    powerSystemDest = powerSystemSource;
+
+    return postOrderCheckEqual(powerSystemSource.m_root, powerSystemDest.m_root);
+}
+
+bool Tester::testAVLAssignmentNormal() {
+    WirelessPower powerSystemSource(AVL);
+    WirelessPower powerSystemDest(AVL);
+    insertRandMultiple(powerSystemSource);
+    insertRandMultiple(powerSystemDest);
+
+    powerSystemDest = powerSystemSource;
+
+    return postOrderCheckEqual(powerSystemSource.m_root, powerSystemDest.m_root);
+}
+
+bool Tester::testSPLAYAssignmentNormal() {
+    WirelessPower powerSystemSource(SPLAY);
+    WirelessPower powerSystemDest(SPLAY);
+    insertRandMultiple(powerSystemSource);
+    insertRandMultiple(powerSystemDest);
+
+    powerSystemDest = powerSystemSource;
+
+    return postOrderCheckEqual(powerSystemSource.m_root, powerSystemDest.m_root);
+}
+
+bool Tester::postOrderCheckEqual(Customer *source, Customer *destination) {
+    if (source != nullptr || destination != nullptr) {
+        postOrderCheckEqual(source->m_left, destination->m_left);
+        postOrderCheckEqual(source->m_right, destination->m_right);
+
+        if (source->m_id != destination->m_id) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool Tester::testBSTAssignmentError() {
+    WirelessPower powerSystemSource(BST);
+    WirelessPower powerSystemDest(BST);
+
+    //assign an empty object to an empty object
+    powerSystemDest = powerSystemSource;
+
+    return postOrderCheckEqual(powerSystemSource.m_root, powerSystemDest.m_root);
+}
+
+bool Tester::testAVLAssignmentError() {
+    WirelessPower powerSystemSource(AVL);
+    WirelessPower powerSystemDest(AVL);
+
+    //assign an empty object to an empty object
+    powerSystemDest = powerSystemSource;
+
+    return postOrderCheckEqual(powerSystemSource.m_root, powerSystemDest.m_root);
+}
+
+bool Tester::testSPLAYAssignmentError() {
+    WirelessPower powerSystemSource(SPLAY);
+    WirelessPower powerSystemDest(SPLAY);
+
+    //assign an empty object to an empty object
+    powerSystemDest = powerSystemSource;
+
+    return postOrderCheckEqual(powerSystemSource.m_root, powerSystemDest.m_root);
 }
 
 int main() {
@@ -405,7 +481,7 @@ int main() {
     }
 
     cout << "\nTesting insertSPLAY - check all heights:" << endl;
-    if (tester.testSPLAYHeight()) {
+    if (tester.testSPLAYHeightAfterInsert()) {
         cout << "\tTest passed!" << endl;
     } else {
         cout << "\t***Test failed!***" << endl;
@@ -443,8 +519,47 @@ int main() {
     } else {
         cout << "\t***Test failed!***" << endl;
     }
-    cout << "Testing removeSPLAY - check whether BST property is preserved after multiple removals:" << endl;
-    if (tester.testBSTPropertyAfterRemoveSPLAY()) {
+
+    cout << "\nTesting removeBST - check all heights:" << endl;
+    if (tester.testBSTHeightAfterRemove()) {
+        cout << "\tTest passed!" << endl;
+    } else {
+        cout << "\t***Test failed!***" << endl;
+    }
+
+    cout << "\nTesting assignment operator (normal) - :" << endl;
+    if (tester.testBSTAssignmentNormal()) {
+        cout << "\tTest passed!" << endl;
+    } else {
+        cout << "\t***Test failed!***" << endl;
+    }
+    cout << "Testing assignment operator (normal) - :" << endl;
+    if (tester.testAVLAssignmentNormal()) {
+        cout << "\tTest passed!" << endl;
+    } else {
+        cout << "\t***Test failed!***" << endl;
+    }
+    cout << "Testing assignment operator (normal) - :" << endl;
+    if (tester.testSPLAYAssignmentNormal()) {
+        cout << "\tTest passed!" << endl;
+    } else {
+        cout << "\t***Test failed!***" << endl;
+    }
+
+    cout << "\nTesting assignment operator (error) - :" << endl;
+    if (tester.testBSTAssignmentError()) {
+        cout << "\tTest passed!" << endl;
+    } else {
+        cout << "\t***Test failed!***" << endl;
+    }
+    cout << "Testing assignment operator (error) - :" << endl;
+    if (tester.testAVLAssignmentError()) {
+        cout << "\tTest passed!" << endl;
+    } else {
+        cout << "\t***Test failed!***" << endl;
+    }
+    cout << "Testing assignment operator (error) - :" << endl;
+    if (tester.testSPLAYAssignmentError()) {
         cout << "\tTest passed!" << endl;
     } else {
         cout << "\t***Test failed!***" << endl;
