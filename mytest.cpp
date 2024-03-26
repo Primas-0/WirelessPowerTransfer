@@ -43,8 +43,9 @@ class Tester {
 public:
     bool testAVLBalancedAfterInsert();
 
-    //Test whether the BST property is preserved after all insertions. (Note: this requires visiting all nodes and comparing key values.)
-    bool testBSTPropertyAfterInsert();
+    bool testBSTPropertyAfterInsertBST();
+    bool testBSTPropertyAfterInsertAVL();
+    bool testBSTPropertyAfterInsertSPLAY();
 
     //Test whether the Splay tree performs the splay operations. For example, we can insert multiple nodes in the splay tree and after every insertion we check whether the inserted node is at root and the tree preserves the BST property.
     bool testSPLAY();
@@ -74,17 +75,24 @@ public:
     bool testAssignmentError();
 
 private:
-    bool postOrderHeightCheck(Customer* node);
+    void insertRand(WirelessPower& powerSystem);
+    bool postOrderBalanceCheck(Customer* node);
+    int findBalanceFactor(Customer* node);
     int findHeight(Customer* node);
     int maxVal(int num1, int num2);
+
+    bool postOrderBSTCheck(Customer* node);
 };
 
 bool Tester::testAVLBalancedAfterInsert() {
-    //Test whether the AVL tree is balanced after a decent number of insertions, e.g. 300 insertions. (Note: this
-    // requires visiting all nodes and checking the height values are correct.)
-
+    //Test whether the AVL tree is balanced after a large number of insertions
     WirelessPower powerSystem(AVL);
+    insertRand(powerSystem);
 
+    return postOrderBalanceCheck(powerSystem.m_root);
+}
+
+void Tester::insertRand(WirelessPower& powerSystem) {
     Random randIDObject(MINID, MAXID, UNIFORMINT);
     Random randLatObject(MINLAT, MAXLAT, UNIFORMREAL);
     Random randLongObject(MINLONG, MAXLONG, UNIFORMREAL);
@@ -93,26 +101,33 @@ bool Tester::testAVLBalancedAfterInsert() {
 
     for (int i = 0; i < customerSize; i++){
         int randID = randIDObject.getRandInt();
-        int randLat = randLatObject.getRandReal();
-        int randLong = randLongObject.getRandReal();
+        double randLat = randLatObject.getRandReal();
+        double randLong = randLongObject.getRandReal();
 
         Customer customer(randID, randLat, randLong);
         powerSystem.insert(customer);
     }
-
-    return postOrderHeightCheck(powerSystem.m_root);
 }
 
-bool Tester::postOrderHeightCheck(Customer *node) {
+bool Tester::postOrderBalanceCheck(Customer *node) {
     if (node != nullptr) {
-        postOrderHeightCheck(node->m_left);
-        postOrderHeightCheck(node->m_right);
+        //visit all nodes and check if the balance factors are valid
+        postOrderBalanceCheck(node->m_left);
+        postOrderBalanceCheck(node->m_right);
 
-        if (node->m_height != findHeight(node)) {
+        int balanceFactor = findBalanceFactor(node);
+        if (balanceFactor < -1 || balanceFactor > 1) {
             return false;
         }
         return true;
     }
+}
+
+int Tester::findBalanceFactor(Customer* node) {
+    if (node == nullptr) {
+        return 0;
+    }
+    return findHeight(node->m_left) - findHeight(node->m_right);
 }
 
 int Tester::findHeight(Customer* node) {
@@ -133,13 +148,84 @@ int Tester::maxVal(int num1, int num2) {
     return num2;
 }
 
+bool Tester::testBSTPropertyAfterInsertBST() {
+    WirelessPower powerSystem(BST);
+    insertRand(powerSystem);
+
+    return postOrderBSTCheck(powerSystem.m_root);
+}
+
+bool Tester::testBSTPropertyAfterInsertAVL() {
+    WirelessPower powerSystem(AVL);
+    insertRand(powerSystem);
+
+    return postOrderBSTCheck(powerSystem.m_root);
+}
+
+bool Tester::testBSTPropertyAfterInsertSPLAY() {
+    WirelessPower powerSystem(SPLAY);
+    insertRand(powerSystem);
+
+    return postOrderBSTCheck(powerSystem.m_root);
+}
+
+bool Tester::postOrderBSTCheck(Customer *node) {
+    if (node != nullptr) {
+        //visit all nodes and compare key values
+        postOrderBSTCheck(node->m_left);
+        postOrderBSTCheck(node->m_right);
+
+        if (node->m_left == nullptr && node->m_right == nullptr) {
+            //node has no children
+            return true;
+        } else if (node->m_right == nullptr) {
+            //node has one left child
+            if (node->m_left->m_id < node->m_id) {
+                return true;
+            }
+        } else if (node->m_left == nullptr) {
+            //node has one right child
+            if (node->m_right->m_id > node->m_id) {
+                return true;
+            }
+        } else if (node->m_left != nullptr && node->m_right != nullptr) {
+            //node has two children
+            if (node->m_left->m_id < node->m_id && node->m_right->m_id > node->m_id) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
 int main() {
     Tester tester;
 
-    cout << "Testing InsertAVL - balancing:" << endl;
+    cout << "\nTesting InsertAVL - check balance factors:" << endl;
     if (tester.testAVLBalancedAfterInsert()) {
-        cout << "\tConstructor passed!" << endl;
+        cout << "\tTest passed!" << endl;
     } else {
-        cout << "\t***Constructor failed!***" << endl;
+        cout << "\t***Test failed!***" << endl;
     }
+
+    cout << "\nTesting insertBST - check whether BST property is preserved:" << endl;
+    if (tester.testBSTPropertyAfterInsertBST()) {
+        cout << "\tTest passed!" << endl;
+    } else {
+        cout << "\t***Test failed!***" << endl;
+    }
+    cout << "Testing insertAVL - check whether BST property is preserved:" << endl;
+    if (tester.testBSTPropertyAfterInsertAVL()) {
+        cout << "\tTest passed!" << endl;
+    } else {
+        cout << "\t***Test failed!***" << endl;
+    }
+    cout << "Testing insertSPLAY - check whether BST property is preserved:" << endl;
+    if (tester.testBSTPropertyAfterInsertSPLAY()) {
+        cout << "\tTest passed!" << endl;
+    } else {
+        cout << "\t***Test failed!***" << endl;
+    }
+
+
 }
