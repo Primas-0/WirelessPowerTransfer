@@ -395,6 +395,9 @@ void WirelessPower::restructureToAVL(Customer* oldNode, Customer*& newNode) {
         oldNode->m_left = nullptr;
         oldNode->m_right = nullptr;
 
+        //now node is leaf so reset height
+        oldNode->m_height = 0;
+
         //insert each node into new "tree"
         pointerInsertAVL(oldNode, newNode);
     }
