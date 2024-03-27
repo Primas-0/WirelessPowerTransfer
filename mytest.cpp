@@ -65,6 +65,9 @@ public:
     bool testAVLAssignmentError();
     bool testSPLAYAssignmentError();
 
+    bool testSetTypeBSTToAVL();
+    bool testSetTypeSPLAYToAVL();
+
 private:
     vector<int> insertRandMultiple(WirelessPower& powerSystem);
     bool postOrderBalanceCheck(Customer* node);
@@ -402,18 +405,6 @@ bool Tester::testSPLAYAssignmentNormal() {
     return postOrderCheckEqual(powerSystemSource.m_root, powerSystemDest.m_root);
 }
 
-bool Tester::postOrderCheckEqual(Customer *source, Customer *destination) {
-    if (source != nullptr || destination != nullptr) {
-        postOrderCheckEqual(source->m_left, destination->m_left);
-        postOrderCheckEqual(source->m_right, destination->m_right);
-
-        if (source->m_id != destination->m_id) {
-            return false;
-        }
-    }
-    return true;
-}
-
 bool Tester::testBSTAssignmentError() {
     WirelessPower powerSystemSource(BST);
     WirelessPower powerSystemDest(BST);
@@ -442,6 +433,38 @@ bool Tester::testSPLAYAssignmentError() {
     powerSystemDest = powerSystemSource;
 
     return postOrderCheckEqual(powerSystemSource.m_root, powerSystemDest.m_root);
+}
+
+bool Tester::postOrderCheckEqual(Customer *source, Customer *destination) {
+    if (source != nullptr && destination != nullptr) {
+        postOrderCheckEqual(source->m_left, destination->m_left);
+        postOrderCheckEqual(source->m_right, destination->m_right);
+
+        if (source->m_id != destination->m_id) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool Tester::testSetTypeBSTToAVL() {
+    WirelessPower powerSystem(BST);
+    insertRandMultiple(powerSystem);
+
+    powerSystem.setType(AVL);
+
+    //check whether tree is now balanced (which implies it's an AVL tree)
+    return postOrderBalanceCheck(powerSystem.m_root);
+}
+
+bool Tester::testSetTypeSPLAYToAVL() {
+    WirelessPower powerSystem(SPLAY);
+    insertRandMultiple(powerSystem);
+
+    powerSystem.setType(AVL);
+
+    //check whether tree is now balanced (which implies it's an AVL tree)
+    return postOrderBalanceCheck(powerSystem.m_root);
 }
 
 int main() {
@@ -527,39 +550,52 @@ int main() {
         cout << "\t***Test failed!***" << endl;
     }
 
-    cout << "\nTesting assignment operator (normal) - :" << endl;
+    cout << "\nTesting assignment operator (normal) - successfully creates deep copy of BST tree:" << endl;
     if (tester.testBSTAssignmentNormal()) {
         cout << "\tTest passed!" << endl;
     } else {
         cout << "\t***Test failed!***" << endl;
     }
-    cout << "Testing assignment operator (normal) - :" << endl;
+    cout << "Testing assignment operator (normal) - successfully creates deep copy of AVL tree:" << endl;
     if (tester.testAVLAssignmentNormal()) {
         cout << "\tTest passed!" << endl;
     } else {
         cout << "\t***Test failed!***" << endl;
     }
-    cout << "Testing assignment operator (normal) - :" << endl;
+    cout << "Testing assignment operator (normal) - successfully creates deep copy of SPLAY tree:" << endl;
     if (tester.testSPLAYAssignmentNormal()) {
         cout << "\tTest passed!" << endl;
     } else {
         cout << "\t***Test failed!***" << endl;
     }
 
-    cout << "\nTesting assignment operator (error) - :" << endl;
+    cout << "\nTesting assignment operator (error) - deep copy of empty BST tree is empty:" << endl;
     if (tester.testBSTAssignmentError()) {
         cout << "\tTest passed!" << endl;
     } else {
         cout << "\t***Test failed!***" << endl;
     }
-    cout << "Testing assignment operator (error) - :" << endl;
+    cout << "Testing assignment operator (error) - deep copy of empty AVL tree is empty:" << endl;
     if (tester.testAVLAssignmentError()) {
         cout << "\tTest passed!" << endl;
     } else {
         cout << "\t***Test failed!***" << endl;
     }
-    cout << "Testing assignment operator (error) - :" << endl;
+    cout << "Testing assignment operator (error) - deep copy of empty SPLAY tree is empty:" << endl;
     if (tester.testSPLAYAssignmentError()) {
+        cout << "\tTest passed!" << endl;
+    } else {
+        cout << "\t***Test failed!***" << endl;
+    }
+
+    cout << "\nTesting setType - successfully converts a BST tree to an AVL tree:" << endl;
+    if (tester.testSetTypeBSTToAVL()) {
+        cout << "\tTest passed!" << endl;
+    } else {
+        cout << "\t***Test failed!***" << endl;
+    }
+    cout << "Testing setType - successfully converts a SPLAY tree to an AVL tree:" << endl;
+    if (tester.testSetTypeSPLAYToAVL()) {
         cout << "\tTest passed!" << endl;
     } else {
         cout << "\t***Test failed!***" << endl;
