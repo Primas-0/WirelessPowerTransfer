@@ -1,0 +1,113 @@
+CMSC341 Project 2 Gradesheet 
+---------------------------------------------------------------------------
+Student ID: mnarend1
+
+Max grade: 100 
+Raw grade: 94
+Late penalty: 0
+Total grade: 94
+
+(Total grade = Raw grade - Late penalty)
+
+
+Issues, comments, notes and deductions marked by an 'X' are the ones
+that apply to your project submission.
+
+
+General comments: Good coding standards used as well as good job with your project. Great job with testing.
+
+
+
+
+---------------------------------------------------------------------------
+
+Scripted notes and deductions:
+
+
+Checking files
+
+ X == -0: wpower.cpp found
+ X == -0: mytest.cpp found
+
+Compile and Run Unit Tests
+
+ X == -0: No errors in unit test SplayInsertNormal
+ X == -0: No errors in unit test BSTInsertNormal
+ X == -0: No errors in unit test AVLInsertNormal
+ X == -0: No errors in unit test AVLInsertEdge
+ X == -2: failed unit test AVLInsertError
+ X == -0: No errors in unit test BSTRemoveNormal
+ X == -0: No errors in unit test AVLRemoveNormal
+ X == -0: No errors in unit test ConvertBST2AVL
+ X == -0: No errors in unit test ConvertSplay2AVL
+ X == -2: failed unit test AVL2Splay2BST2Splay2AVL
+ X == -0: No errors in unit test AVLRemoveEdge
+ X == -0: No errors in unit test AVLDuplicates
+ X == -2: failed unit test AVLInsertEfficiency
+ X == -0: No errors in unit test AVLAssignmentOp
+ X == -0: No errors in unit test AVLAssignmentOpEdge
+
+Compile and Run mytest.cpp
+
+ X == -0: Student test program (mytest.cpp) ran to completion.
+ X == -0: Student test program (mytest.cpp) ran without memory leaks.
+ X == -0: Student test program (mytest.cpp) ran without memory errors.
+
+---------------------------------------------------------------------------
+
+I. Effort Grading
+
+   Program does not compile or does not run, or runs but does not
+   produce output even after minor tweaks. Grading based on effort.
+   Deductions from scripted grading and deductions marked below are
+   ignored. Late penalties still apply.
+
+   Choose one only:
+
+   ~~  60:  Removing one or two major bugs will fix this project.
+   ~~  45:  Significant progress made, but major rewrite is necessary.
+   ~~  30:  Not much progress made. 
+   ~~  15:  Barely started coding. 
+   ~~   0:  Morally equivalent to no submission.
+   
+           Comment:
+
+
+---------------------------------------------------------------------------
+
+II. Tests in mytest.cpp
+
+   A. WirelessPower class
+
+   == -2: Testing AVL tree is balanced after multiple insertions
+   == -2: Testing BST property is satisfied after multiple insertion in AVL tree
+   == -2: Testing splay operation is performed correctly after multiple insertion
+   == -1: Testing height values are correct after multiple insertion in splay tree
+   == -1: Testing normal case of remove in the BST tree
+   == -1: Testing edge case of remove in the BST tree
+   == -1: Testing AVL tree is balanced after multiple removals
+   == -1: Testing BST property is satisfied after multiple removals from AVL
+   == -1: Testing BST property is satisfied after multiple removals from BST
+   == -1: Testing height values are correct after multiple removals from BST
+   == -1: Testing assignment operator for a normal case
+   == -1: testing assignment operator for an error case
+   
+          Comment:
+
+
+---------------------------------------------------------------------------
+
+IV. Coding Standards
+
+   == -0:  Good indentation, comments, and choice of variable names
+   == -2:  Poor or inconsistent indentation
+   == -2:  Program uses global variables or static data members in lieu of 
+           parameters and return values
+   == -2:  In-line comments are terse and not meaningful
+   == -3:  In-line comments are non-existent
+   == -1:  Poor choice of variable names
+   
+           Comment:
+
+
+---------------------------------------------------------------------------
